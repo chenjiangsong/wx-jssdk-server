@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>微信jssdk</title>
+  <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+  <script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.js"></script>
+</head>
+<body>
+  <script>
+    getSign()
+    
+    function getSign() {
+      $.ajax({
+        url: '/getsign',
+        data: {
+          currentUrl: location.href
+        },
+        success: function (res) {
+          if (res.status === 1) {
+            const config = Object.assign({
+              debug: true,
+              jsApiList: [
+                'hideMenuItems',
+                'onMenuShareAppMessage',
+                'chooseImage',
+                'uploadImage',
+                'previewImage',
+                'onMenuShareTimeline',
+                'getLocation',
+                'scanQRCode'
+              ]
+            }, res.data)
+            
+            wx.config(config)
+          } else {
+            alert(res.msg)
+          }
+        }
+      })
+    }
+  </script>
+</body>
+</html>

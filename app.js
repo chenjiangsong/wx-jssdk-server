@@ -1,10 +1,20 @@
 const express = require('express')
 const app = express()
-const util = require('./util')
+const util = require('./server/util')
 const co = require('co')
-const config = require('./config')
+const config = require('./server/config')
 
-require('./schedule')
+require('./server/schedule')
+app.set('views', './views')
+app.set('view engine', 'ejs')
+
+app.get('/jssdk', function (req, res) {
+  res.render('jssdk')
+})
+
+app.get('/wxpay', function (req, res) {
+  res.render('wxpay')
+})
 
 app.get('/getsign', function (req, res) {
   co(function* () {
@@ -32,4 +42,4 @@ app.get('/getsign', function (req, res) {
   })
 })
 
-app.listen(8082)
+app.listen(8120)
