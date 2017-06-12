@@ -16,30 +16,8 @@ app.get('/wxpay', function (req, res) {
   res.render('wxpay')
 })
 
-app.get('/getsign', function (req, res) {
-  co(function* () {
-    const noncestr = util.createNoncestr()
-    const timestamp = util.getTimeStamp()
-    
-    const params = {
-      noncestr: noncestr,
-      timestamp: timestamp,
-      url: req.query.currentUrl
-    }
+const apiRoutes = require('./server/api.routes.js')
+app.use('/wxapi', apiRoutes)
 
-    const signature = yield util.getSignature(params)
-
-    res.send({
-      status: 1,
-      msg: 'ok',
-      data: {
-        appId: config.appid,
-        timestamp: timestamp,
-        nonceStr: noncestr,
-        signature: signature
-      }
-    })
-  })
-})
 
 app.listen(8120)

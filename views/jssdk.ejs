@@ -11,10 +11,10 @@
 <body>
   <script>
     getSign()
-    
+
     function getSign() {
       $.ajax({
-        url: '/getsign',
+        url: '/wxapi/getsign',
         data: {
           currentUrl: location.href
         },
