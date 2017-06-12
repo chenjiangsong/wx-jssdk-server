@@ -1,6 +1,7 @@
 const express = require('express')
 const co = require('co')
-const util = require('./util')
+const sdk = require('./utils.sdk')
+const wxpay = require('./utils.pay')
 const config = require('./config')
 
 const router = express.Router()
@@ -10,8 +11,8 @@ const router = express.Router()
  */
 router.get('/getsign', function (req, res) {
   co(function* () {
-    const noncestr = util.createNoncestr()
-    const timestamp = util.getTimeStamp()
+    const noncestr = sdk.createNoncestr()
+    const timestamp = sdk.getTimeStamp()
     
     const params = {
       noncestr: noncestr,
@@ -19,7 +20,7 @@ router.get('/getsign', function (req, res) {
       url: req.query.currentUrl
     }
 
-    const signature = yield util.getSignature(params)
+    const signature = yield sdk.getSignature(params)
 
     res.send({
       status: 1,
@@ -42,7 +43,7 @@ router.get('/getpay', function(req, res) {
   const defParams = {
     appid: config.appid,
     mch_id: config.mch_id,
-    nonce_str: util.createNoncestr(),
+    nonce_str: '',
     sign: '',
     body: '微信支付-测试0.01元',
     out_trade_no: '',
@@ -52,6 +53,7 @@ router.get('/getpay', function(req, res) {
     openid: '',
     total_fee: total_fee
   }
+  res.send(wxpay.getSign(defParams))
 })
 
 module.exports = router

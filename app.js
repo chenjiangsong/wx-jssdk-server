@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const util = require('./server/util')
 const co = require('co')
 const config = require('./server/config')
 
@@ -18,6 +17,5 @@ app.get('/wxpay', function (req, res) {
 
 const apiRoutes = require('./server/api.routes.js')
 app.use('/wxapi', apiRoutes)
-
 
 app.listen(8120)

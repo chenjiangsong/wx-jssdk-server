@@ -3,7 +3,7 @@
  * 每2个小时 重新获取token
  */
 const schedule = require('node-schedule')
-const util = require('./util')
+const util = require('./utils.sdk')
 const co = require('co')
 
 /**
