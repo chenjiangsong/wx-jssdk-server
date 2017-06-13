@@ -13,6 +13,8 @@
   <button class="btn">付钱a</button>
 
   <script>
+
+    getSign()
     var btn = $('.btn')
     btn.on('click', function () {
       const fee = $('.input').val()
@@ -25,8 +27,16 @@
         data: params,
         dataType: 'json',
         success: function (res) {
-          alert(JSON.stringify(res))
-          doPay(res)      
+          wx.chooseWXPay({
+            timestamp: res.timeStamp,
+            nonceStr: res.nonceStr,
+            package: res.package,
+            signType: res.signType,
+            paySign: res.paySign,
+            success: function (resp) {
+
+            }
+          })
         }
       })
     })
@@ -61,6 +71,37 @@
       onBridgeReady();
     }
   }
+
+
+    function getSign() {
+      $.ajax({
+        url: '/wxapi/getsign',
+        data: {
+          currentUrl: location.href
+        },
+        success: function (res) {
+          if (res.status === 1) {
+            const config = Object.assign({
+              debug: true,
+              jsApiList: [
+                'hideMenuItems',
+                'onMenuShareAppMessage',
+                'chooseImage',
+                'uploadImage',
+                'previewImage',
+                'onMenuShareTimeline',
+                'getLocation',
+                'scanQRCode'
+              ]
+            }, res.data)
+            
+            wx.config(config)
+          } else {
+            alert(res.msg)
+          }
+        }
+      })
+    }
   </script>
 </body>
 </html>
