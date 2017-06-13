@@ -1,21 +1,21 @@
 const express = require('express')
-const app = express()
 const co = require('co')
+const cookie = require('cookie-parser')
 const config = require('./server/config')
+
+const app = express()
 
 require('./server/schedule')
 app.set('views', './views')
 app.set('view engine', 'ejs')
 
-app.get('/jssdk', function (req, res) {
-  res.render('jssdk')
-})
-
-app.get('/wxpay', function (req, res) {
-  res.render('wxpay')
-})
-
-const apiRoutes = require('./server/api.routes.js')
+app.use(cookie())
+// app.get('/', function (req, res) {
+//   res.render('index')
+// })
+const demoRoutes = require('./server/demo.routes')
+const apiRoutes = require('./server/api.routes')
+app.use('/fybWeixinEnt', demoRoutes)
 app.use('/wxapi', apiRoutes)
 
 app.listen(8120)

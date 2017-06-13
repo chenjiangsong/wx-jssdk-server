@@ -1,7 +1,7 @@
 'use strict'
 
 const rp = require('request-promise')
-const client = require('./redis')
+const redis = require('./redis.client')
 const config = require('./config')
 const co = require('co')
 const Hashes = require('jshashes')
@@ -28,7 +28,7 @@ util.getToken = function () {
     if (res && res.access_token) {
       //redis缓存
       const accessToken = res.access_token
-      util.setRedis('accessToken', accessToken)
+      redis.set('accessToken', accessToken)
       return accessToken
     } else {
       console.error('ERROR: GET ACCESS_TOKEN ERROR')
@@ -40,7 +40,7 @@ util.getToken = function () {
 util.getTicket = function (accessToken) {
   return co(function* () {
     if (!accessToken) {
-      accessToken = yield util.getRedisValue('accessToken')
+      accessToken = yield redis.getAsync('accessToken')
     }
     
     const options = {
@@ -55,7 +55,7 @@ util.getTicket = function (accessToken) {
     
     if (res && res.errcode === 0) {
       const ticket = res.ticket
-      util.setRedis('ticket', ticket)
+      redis.set('ticket', ticket)
       return ticket
     } else {
       console.error('ERROR: GET JSAPI_TICKET ERROR')
@@ -67,8 +67,8 @@ util.getTicket = function (accessToken) {
  */
 util.getSignature = function (params) {
   return co(function* () {
-    let token = yield util.getRedisValue('accessToken')
-    let ticket = yield util.getRedisValue('ticket')
+    let token = yield redis.getAsync('accessToken')
+    let ticket = yield redis.getAsync('ticket')
     
     if (!token) {
       token = yield util.getToken()
@@ -98,17 +98,12 @@ util.createNoncestr = function (len) {
   return pwd
 }
 
-util.getRedisValue = function (key) {
-  return client.getAsync(key)
-}
+// util.getRedisValue = function (key) {
+//   return client.getAsync(key)
+// }
 
-util.setRedis = function (key, value) {
-  client.set(key, value)
-}
-
-util.
-
-
-
+// util.setRedis = function (key, value) {
+//   client.set(key, value)
+// }
 
 module.exports = util

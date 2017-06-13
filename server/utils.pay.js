@@ -1,7 +1,7 @@
 'use strict'
 
 const rp = require('request-promise')
-const client = require('./redis')
+const redis = require('./redis.client')
 const config = require('./config')
 const co = require('co')
 const Hashes = require('jshashes')
@@ -35,19 +35,60 @@ util.createNoncestr = function (len) {
 }
 
 /**
- * sign 
+ * sign 统一下单sign获取
  */
 util.getSign = function (params) {
-  const stringA = `appid=${config.appid}&body=${params.body}&device_info=WEB&mch_id=${config.mch_id}&nonce_str=${util.createNoncestr()}`
+  let keys = Object.keys(params),
+    len = keys.length,
+    stringA = ''
+
+  keys.sort();
+
+  for (let i = 0; i < len; i++) {
+    stringA += `${keys[i]}=${params[keys[i]]}&`
+  }
+  stringA += `key=${config.api_key}`
   return MD5.hex(stringA).toUpperCase()
 }
-
 /**
  * openId
  */
 util.getOpenid = function () {
-  
+  return co(function* () {
+    const accessToken = yield redis.getAsync('accessToken')
+    const userId = yield redis.getAsync('userId')
+    const options = {
+      method: 'POST',
+      uri: `https://qyapi.weixin.qq.com/cgi-bin/user/convert_to_openid?access_token=${accessToken}`,
+      body: {
+        userid: userId
+      },
+      json: true
+    }
+    const res = yield rp(options)
+    redis.set('openid', res.openid)
+    return res.openid
+  })
 }
 
+util.setUserId = function (code) {
+  return co(function* () {
+    const accessToken = yield redis.getAsync('accessToken')
+    const options = {
+      uri: 'https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo',
+      qs: {
+        access_token: accessToken,
+        code: code
+      },
+      json: true
+    }
+    const res = yield rp(options)
+    redis.set('userId', res.UserId)
+  })
+}
+
+util.createOutTradeNo = function () {
+  return new Date().getTime()
+}
 
 module.exports = util
